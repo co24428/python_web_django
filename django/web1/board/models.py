@@ -10,4 +10,5 @@ class Table1(models.Model):
     content = models.TextField()
     writer  = models.CharField(max_length=50)
     hit     = models.IntegerField()
+    img     = models.BinaryField(null=True) # 바이너리 필드
     regdate = models.DateField(auto_now_add=True)
