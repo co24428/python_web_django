@@ -1,8 +1,10 @@
 from django.shortcuts import render,redirect
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-#SQLite 연결
 from django.db import connection
+#BLOB 읽기용
+from base64 import b64encode # byte배열을 base64로 변경함.
+
 cursor = connection.cursor()
 
 @csrf_exempt
@@ -10,12 +12,17 @@ def write(request):
     if request.method=='GET':
         return render(request, 'board/write.html')
     if request.method=='POST':
-        img = request.FILES['img'] # name값 img
+        tmp =None
+        if 'img' in request.FILES:
+            img = request.FILES['img']
+            tmp = img.read()
+
         ar = [
             request.POST['title'],
             request.POST['content'],
             request.POST['writer'],
-            img.read() # 이미지를 byte[]로 변경
+            tmp
+            # img.read() # 이미지를 byte[]로 변경
         ]
         # print(ar)
 
@@ -41,8 +48,6 @@ def list(request):
         """
         cursor.execute(sql)
         data = cursor.fetchall()
-        print(type(data))
-        print(data)  
 
         return render(request, 'board/list.html', {"list":data})
 
@@ -68,16 +73,49 @@ def content(request):
             cursor.execute(sql, [no])
             request.session['hit'] = 0
 
+        # 이전 글 번호
+        sqlp = """
+            SELECT NVL(max(no),0)
+            FROM board_table1 
+            where no<%s
+        """
+        cursor.execute(sqlp, [no])
+        prev = cursor.fetchone()
+        # 이전 글 없을 때 if로 처리
+        # if prev[0] == 0:
+        #     prev = (no,)
+
+        # 다음 글 번호
+        sqln = """
+            SELECT NVL(min(no),0)
+            FROM board_table1 
+            where no>%s
+        """
+        cursor.execute(sqln, [no])
+        nxt = cursor.fetchone()
+        # 다음 글 없을 때 if로 처리
+        # if nxt[0] == 0:
+        #     nxt = (no,)
+ 
         # 가져오기
         sql = """
-            SELECT NO, TITLE, CONTENT, WRITER, HIT, TO_CHAR(REGDATE, 'YYYY-MM-DD HH:MI:SS') 
+            SELECT NO, TITLE, CONTENT, WRITER, HIT, TO_CHAR(REGDATE, 'YYYY-MM-DD HH:MI:SS'), IMG 
             FROM BOARD_TABLE1
             WHERE NO=%s
         """
         cursor.execute(sql, [no])
         data = cursor.fetchone()
+        print(data) 
 
-        return render(request, 'board/content.html', {"one":data})
+        if data[6]:
+            img = data[6].read() # 바이트 배열을 img에 넣음
+            img64 = b64encode(img).decode("utf-8")
+        else:
+            file = open('./static/img/default.png', 'rb')
+            img = file.read()
+            img64 = b64encode(img).decode("utf-8")
+
+        return render(request, 'board/content.html', {"one":data, "image":img64, "prev":prev[0], "next":nxt[0]})
         
 @csrf_exempt
 def edit(request):

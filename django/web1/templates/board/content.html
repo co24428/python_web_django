@@ -30,6 +30,12 @@
                     {% endautoescape %}
                 </td>
             </tr>
+            
+            <tr>
+                <th class="bg-light">이미지</th>
+                <!-- <td><img src="/static/img/google.png" /></td> -->
+                <td><img src="data:;base64,{{image}}" width="400px" height="400"></td>
+            </tr>
 
             <tr>
                 <th class="bg-light">작성자</th>
@@ -45,8 +51,17 @@
             </tr>            
         </table>
         <a href="/board/list" class="btn btn-success">목록으로</a>
-        <a href="/board/content" class="btn btn-success">이전글</a>
-        <a href="/board/content" class="btn btn-success">다음글</a>
+        {% if prev > 0 %}
+        <a href="/board/content?no={{prev}}" class="btn btn-success">이전글</a>
+        {% else %}
+        <a href="#" class="btn btn-success disabled">이전글</a>
+        {% endif %}
+        
+        {% if next > 0 %}
+        <a href="/board/content?no={{next}}" class="btn btn-success">다음글</a>
+        {% else %}
+        <a href="#" class="btn btn-success disabled">다음글</a>
+        {% endif %}
         <a href="/board/edit?no={{one.0}}" class="btn btn-success">글수정</a>
         <a href="/board/delete" class="btn btn-success">글삭제</a>
     </div>
