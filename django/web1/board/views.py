@@ -134,9 +134,31 @@ def edit(request):
 
         return render(request, 'board/edit.html', {"one":data})
     if request.method=="POST":
-        return redirect("/board/list")
+        ar = [
+            request.POST['title'], 
+            request.POST['content'], 
+            request.POST['writer'],
+            request.POST['no']
+        ]
 
-@csrf_exempt
+        sql ="""
+            UPDATE BOARD_TABLE1 
+            SET TITLE=%s, CONTENT=%s, WRITER=%s
+            WHERE NO=%s 
+        """
+        cursor.execute(sql, ar)
+        return redirect("/board/content?no="+request.POST['no'])
+
+# 127.0.0.1:8000/board/delete?no=37
+# 127.0.0.1:8000/board/delete
+@csrf_exempt  
 def delete(request):
-    if request.method=="GET":
-        pass
+    if request.method == 'GET':   
+        # request.GET.get("no", 1)     
+        no = request.GET.get("no", 0)
+        sql = """
+            DELETE FROM BOARD_TABLE1
+            WHERE NO=%s
+        """
+        cursor.execute(sql, [no])
+        return redirect("/board/list")
