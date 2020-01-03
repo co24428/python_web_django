@@ -54,15 +54,26 @@ def write(request):
 def list(request):
     if request.method=='GET':
         request.session['hit'] = 1 # 세션에  hit=1
+        
+        writer = request.GET.get('writer', None)
+        sql =""
+        if writer != None:
+            sql = """
+                SELECT NO, TITLE, WRITER, HIT, TO_CHAR(REGDATE, 'YYYY-MM-DD HH:MI:SS') 
+                FROM BOARD_TABLE1
+                WHERE WRITER=%s
+                ORDER BY NO DESC
+            """
+        else:    
+            sql = """
+                SELECT NO, TITLE, WRITER, HIT, TO_CHAR(REGDATE, 'YYYY-MM-DD HH:MI:SS') 
+                FROM BOARD_TABLE1
+                ORDER BY NO DESC
+            """
 
-        sql = """
-            SELECT NO, TITLE, WRITER, HIT, TO_CHAR(REGDATE, 'YYYY-MM-DD HH:MI:SS') 
-            FROM BOARD_TABLE1
-            ORDER BY NO DESC
-        """
         cursor.execute(sql)
         data = cursor.fetchall()
-
+        
         return render(request, 'board/list.html', {"list":data})
 
 
@@ -75,6 +86,8 @@ def content(request):
         no = request.GET.get('no', 0)
         if no == 0:
             return redirect( "/board/list" )
+
+        
 
         # 조회수 1증가 
         #       => 새로고침하면 안늘어나게 해야 함 - 세션을 통해 컨트롤
@@ -110,6 +123,13 @@ def content(request):
         # 다음 글 없을 때 if로 처리
         # if nxt[0] == 0:
         #     nxt = (no,)
+
+        # 작성자 누르면 작성자 기준 검색
+        sqlsearch = """
+            SELECT NO, TITLE, WRITER, HIT, TO_CHAR(REGDATE, 'YYYY-MM-DD HH:MI:SS'), IMG 
+            FROM BOARD_TABLE1
+            WHERE NO=%s
+        """
  
         # 가져오기
         sql = """
