@@ -64,17 +64,18 @@ def list(request):
                 WHERE WRITER=%s
                 ORDER BY NO DESC
             """
+            cursor.execute(sql,[writer])
         else:    
             sql = """
                 SELECT NO, TITLE, WRITER, HIT, TO_CHAR(REGDATE, 'YYYY-MM-DD HH:MI:SS') 
                 FROM BOARD_TABLE1
                 ORDER BY NO DESC
             """
+            cursor.execute(sql)
 
-        cursor.execute(sql)
         data = cursor.fetchall()
         
-        return render(request, 'board/list.html', {"list":data})
+        return render(request, 'board/list.html', {"list":data, "writer":writer})
 
 
 # http://127.0.0.1:8000/board/content?no=13     -> 정상 작동

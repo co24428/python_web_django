@@ -13,6 +13,9 @@
         <h1> Posting LIST</h1>
         <hr />
         <a href="/board/write" class="btn btn-primary">글쓰기</a>
+        {% if writer %}
+        <a href="/board/list" class="btn btn-secondary">시작 메뉴로</a>
+        {% endif %}
 
         <div class="form-inline row justify-content-end">
             <select class="form-control">
