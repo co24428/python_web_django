@@ -4,8 +4,22 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db import connection
 #BLOB 읽기용
 from base64 import b64encode # byte배열을 base64로 변경함.
+import pandas as pd
 
 cursor = connection.cursor()
+
+def dataframe(request):
+    if request.method=='GET':
+        df = pd.read_sql(
+            """
+            SELECT NO, WRITER, HIT, REGDATE
+            FROM BOARD_TABLE1
+            """, con=connection)
+        print(type(df))
+        print(df["HIT"])
+        print(df)
+        return  render(request, 'board/dataframe.html', {"df":df.to_html(classes="table")})
+
 
 @csrf_exempt
 def write(request):
