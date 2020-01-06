@@ -12,3 +12,13 @@ class Table1(models.Model):
     hit     = models.IntegerField()
     img     = models.BinaryField(null=True) # 바이너리 필드
     regdate = models.DateField(auto_now_add=True)
+
+class Table2(models.Model): # Score 관련 - korean, english, math
+    object  = models.Manager()
+
+    no      = models.AutoField(primary_key=True)
+    name    = models.CharField(max_length=30)
+    kor     = models.IntegerField(null=True)
+    eng     = models.IntegerField(null=True)
+    math    = models.IntegerField(null=True)
+    regdate = models.DateField(auto_now_add=True)
