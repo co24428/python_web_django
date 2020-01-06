@@ -284,10 +284,29 @@ def t2_update_all(request):
         rows = Table2.object.filter(no__in=n)
         return render(request, 'board/t2_update_all.html',{"list":rows})
     if request.method == "POST":
-        no = request.POST.getlist("chk[]")
-        request.session['no'] = no
-        print(no)
-        return redirect("/board/t2_update_all")
+        menu = request.POST['menu']
+        if menu=="1":
+            no = request.POST.getlist("chk[]")
+            request.session['no'] = no
+            return redirect("/board/t2_update_all")
+        if menu=="2":
+            no = request.POST.getlist("no[]")
+            name = request.POST.getlist("name[]")
+            kor = request.POST.getlist("kor[]")
+            eng = request.POST.getlist("eng[]")
+            math = request.POST.getlist("math[]")
+
+            objs = []
+            for i in range(0, len(no)):
+                obj = Table2.object.get(no=no[i])
+                obj.name = name[i]
+                obj.kor = kor[i]
+                obj.eng = eng[i]
+                obj.math = math[i]
+                objs.append(obj)
+            Table2.object.bulk_update(objs,["name", "kor", "eng", "math"])
+            return redirect("/board/t2_list")
+            
 
 @csrf_exempt
 def t2_delete(request):

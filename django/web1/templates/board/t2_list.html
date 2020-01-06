@@ -9,6 +9,7 @@
 <body>
     <form action="/board/t2_update_all" method="POST">
         {% csrf_token %}
+        <input type="hidden" name="menu" value="1" />
         <table border="1">
             {% for one in list %}
             <tr>

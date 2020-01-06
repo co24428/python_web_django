@@ -10,6 +10,8 @@
     <h3>T2_insert</h3>
     <hr/>
     <form action="/board/t2_update_all" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="menu" value="2" />
         <table border="1">
             {% for one in list %}
             <tr>
