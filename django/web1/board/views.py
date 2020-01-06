@@ -5,6 +5,7 @@ from django.db import connection
 #BLOB 읽기용
 from base64 import b64encode # byte배열을 base64로 변경함.
 import pandas as pd
+from .models import Table2 # 해당 모델에 직접 연결, SQL 안써도 되게끔
 
 cursor = connection.cursor()
 
@@ -197,3 +198,105 @@ def delete(request):
         """
         cursor.execute(sql, [no])
         return redirect("/board/list")
+
+@csrf_exempt
+def t2_insert(request):
+    if request.method == "GET":
+        return render(request, 'board/t2_insert.html')
+    if request.method == "POST":
+        obj = Table2() # obj 객체 생성
+        obj.name = request.POST['name']
+        obj.kor = request.POST['kor']
+        obj.eng = request.POST['eng']
+        obj.math = request.POST['math']
+        obj.save() # 저장하기
+
+        # ar = [
+        #     request.POST['name'], 
+        #     request.POST['kor'], 
+        #     request.POST['eng'],
+        #     request.POST['math']
+        # ]
+        # sql = """
+        #     INSERT INTO BOARD_TABLE2 (NAME,KOR,ENG,MATH,REGDATE)
+        #     VALUES (%s,%s,%s,%s,SYSDATE)
+        # """
+        # cursor.execute(sql, ar)
+        return redirect("/board/t2_list")
+
+# @csrf_exempt # 원래는 얘를 HTML의 form 태그 안에 {% csrf_token%}으로 해결하여야 한다.
+def t2_insert_all(request):
+    if request.method == "GET":
+        return render(request, 'board/t2_insert_all.html', {"cnt":range(5)})
+    if request.method == "POST":
+        na = request.POST.getlist("name[]")
+        ko = request.POST.getlist("kor[]")
+        en = request.POST.getlist("eng[]")
+        ma = request.POST.getlist("math[]")
+        
+        objs = []
+        for  i in range(0, len(na)):
+            obj = Table2()
+            obj.name = na[i]
+            obj.kor = ko[i]
+            obj.eng = en[i]
+            obj.math = ma[i]
+            objs.append(obj)
+        # save를 할 때, 일괄적으로 처리되어야 한다. 다 되거나, 하나도 안되거나
+        # save 대신 사용 -> bulk_create
+        Table2.object.bulk_create(objs)
+
+        return redirect("/board/t2_list")
+
+@csrf_exempt
+def t2_list(request):
+    if request.method == "GET":
+        rows = Table2.object.all()
+        # SQL : SELECT * FROM VOARD_TABLE2
+        print(rows)
+        print(type(rows)) # <class 'django.db.models.query.QuerySet'>
+        return render(request, 'board/t2_list.html', {"list": rows})
+
+@csrf_exempt
+def t2_update(request):
+    if request.method == 'GET':
+        n = request.GET.get("no",0)
+        #SELECT * FROM BOARD_TABLE2 WHERE NO=%s
+        row = Table2.object.get(no=n)
+        return render(request, 'board/t2_update.html',{"one":row})
+    if request.method == 'POST':
+        n = request.POST['no']
+        obj = Table2.object.get(no=n) #obj객체 가져옴
+        obj.name = request.POST['name'] # 변수에 값
+        obj.kor = request.POST['kor']
+        obj.eng = request.POST['eng']
+        obj.math = request.POST['math']
+        obj.save() #저장하기 수행
+        # UPDATE BOARD_TABLE2 SET
+        # NAME=%s, KOR=%s, ENG=%s, MATH=%s
+        # WHERE NO= %s
+        return redirect("/board/t2_list")
+
+
+def t2_update_all(request):
+    if request.method == "GET":
+        n = request.session['no']
+        rows = Table2.object.filter(no__in=n)
+        return render(request, 'board/t2_update_all.html',{"list":rows})
+    if request.method == "POST":
+        no = request.POST.getlist("chk[]")
+        request.session['no'] = no
+        print(no)
+        return redirect("/board/t2_update_all")
+
+@csrf_exempt
+def t2_delete(request):
+    if request.method == "GET":
+        n = request.GET.get("no",0)
+
+        # SQL : SELECT * FROM BOARD_TABLE2 WHERE NO=%s
+        row = Table2.object.get(no=n)
+        # SQL : DELETE * FROM BOARD_TABLE2 WHERE NO=%s
+        row.delete();
+
+        return redirect("/board/t2_list")
