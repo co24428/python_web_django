@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>EXAM_INSERT</title>
+</head>
+<body>
+  <form action="/member/exam_insert" method="POST">
+    {% csrf_token %}
+    이름: <input type="text" name="name" /> <br/>
+    국어 성적:  <input type="text" name="kor" /> <br/>
+    영어 성적:  <input type="text" name="eng" /> <br/>
+    수학 성적:  <input type="text" name="math" /> <br/>
+    반:  <input type="text" name="classroom" /> <br/>
+    <input type="submit" value="성적 추가" />
+  </form>
+  <a href="/member/exam_index">홈</a>
+  
+</body>
+</html>

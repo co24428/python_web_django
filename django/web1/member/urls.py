@@ -4,7 +4,7 @@ from . import views
 urlpatterns = [
     path('index', views.index, name="index"),
     path('join', views.join, name="join"),
-    path('list', views.list, name="list"),
+    # path('list', views.list, name="list"),
     path('login', views.login, name="login"),
     path('logout', views.logout, name="logout"),
     path('edit', views.edit, name="edit"),
@@ -17,5 +17,11 @@ urlpatterns = [
     path('auth_logout', views.auth_logout, name="auth_logout"),
     path('auth_edit', views.auth_edit, name="auth_edit"),
     path('auth_pw', views.auth_pw, name="auth_pw"),
-]
 
+    path('exam_index', views.exam_index, name="exam_index"),
+    path('exam_insert', views.exam_insert, name="exam_insert"),
+    path('exam_insert_many', views.exam_insert_many, name="exam_insert_many"),
+    path('exam_update', views.exam_update, name="exam_update"),
+    path('exam_delete', views.exam_delete, name="exam_delete"),
+    path('exam_select', views.exam_select, name="exam_select"),
+]

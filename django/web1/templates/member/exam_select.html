@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>T2_LIST</title>
+</head>
+<body>
+    <a href="/member/exam_select">기본으로</a> /
+    {% for one in classroom_list %}
+    <a href="/member/exam_select?cls={{one}}">{{one}}</a>
+    {% endfor %}
+    <hr/>
+    <table border="1">
+        <tr>
+            <th>name</th>
+            <th>kor</th>
+            <th>eng</th>
+            <th>math</th>
+            <th>classroom</th>
+            <th>regdate</th>
+        </tr>
+        {% for one in list %}
+        <tr>
+            <td>{{one.name}}</td>
+            <td>{{one.kor}}</td>
+            <td>{{one.eng}}</td>
+            <td>{{one.math}}</td>
+            <td>{{one.classroom}}</td>
+            <td>{{one.regdate}}</td>
+            <td>
+            <a href="/member/exam_update?no={{one.no}}">수정</a>
+            <a href="/member/exam_delete?no={{one.no}}">삭제</a>
+            </td>
+        </tr> 
+        {% endfor %}
+        <tr>
+            <th>합계</th>
+            <td>{{sum_avg.0}}</td>
+            <td>{{sum_avg.1}}</td>
+            <td>{{sum_avg.2}}</td>
+        </tr>
+        <tr>
+            <th>평균</th>
+            <td>{{sum_avg.3}}</td>
+            <td>{{sum_avg.4}}</td>
+            <td>{{sum_avg.5}}</td>
+        </tr>
+    </table>
+    <hr/>
+    <a href="/member/exam_insert">성적추가</a>
+    <a href="/member/exam_insert_many">5개 성적 추가</a>
+        
+
+</body>
+
+</html>
