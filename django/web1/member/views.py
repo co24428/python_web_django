@@ -4,8 +4,14 @@ from django.views.decorators.csrf import csrf_exempt
 #DB 연결
 from django.db import connection
 cursor = connection.cursor()
+# django에서 제공하는 User 모델 - migration하면 생성되는 것들 중 하나
+from django.contrib.auth.models import User
+# 미리 선언된 검증 함수들을 사용
+from django.contrib.auth import login as login1
+from django.contrib.auth import logout as logout1
+from django.contrib.auth import authenticate as auth1
 
-
+              
 # Create your views here.
 def index(request):
     # return HttpResponse("indexpagesssss")
@@ -146,3 +152,84 @@ def join1(request):
         print(ar)
 
         return redirect("/member/index") # 절대경로로 줘라!!, /로 시작해야 한다..
+
+def auth_join(request):
+    if request.method == 'GET':
+        return render(request, 'member/auth_join.html')
+    if request.method == 'POST':
+        id = request.POST['username']
+        pw = request.POST['password']
+        na = request.POST['first_name']
+        em = request.POST['email']
+        
+        obj = User.objects.create_user(
+            username=id, 
+            password=pw, 
+            first_name=na,
+            email=em
+        )
+        obj.save()
+        return redirect("/member/auth_index")
+
+def auth_index(request):
+    if request.method == 'GET':
+        return render(request, 'member/auth_index.html')
+    if request.method == 'POST':
+        pass
+
+def auth_login(request):
+    if request.method == 'GET':
+        return render(request, 'member/auth_login.html')
+    if request.method == 'POST':
+        id = request.POST['username']
+        pw = request.POST['password']
+
+        # DB에 인증
+        obj = auth1(request, username=id, password=pw)
+
+        if obj is not None:
+            login1(request, obj) # 세션에 추가
+
+        return redirect("/member/auth_index")
+
+def auth_logout(request):
+    if request.method == 'GET' or request.method == 'POST':
+        logout1(request)
+        return redirect("/member/auth_index")
+
+def auth_edit(request):
+    if request.method == 'GET':
+        if not request.user.is_authenticated:
+            return redirect("/member/auth_login")
+
+        obj = User.objects.get(username=request.user)
+
+        return render(request, "member/auth_edit.html", {"obj": obj})
+    if request.method == 'POST':
+        id = request.POST['username']
+        na = request.POST['first_name']
+        em = request.POST['email']
+
+        obj = User.objects.get(username=id)
+        obj.first_name = na
+        obj.email = em
+        obj.save()
+        return redirect("/member/auth_index")
+
+def auth_pw(request):
+    if request.method == 'GET':
+        if not request.user.is_authenticated:
+            return redirect("/member/auth_login")
+
+        return render(request, "member/auth_pw.html")
+    if request.method == 'POST':
+        pw = request.POST['pw']     # 기존 비밀번호
+        pw1 = request.POST['pw1']   # 변경 비밀번호
+        # 바꾸기 전에 인증
+        obj = auth1(request, username=request.user, password=pw)
+
+        if obj:
+            obj.set_password(pw1)
+            obj.save()
+            return redirect("/member/auth_index")
+        return redirect("/member/auth_pw")

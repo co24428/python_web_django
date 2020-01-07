@@ -1,0 +1,15 @@
+{% include "./head.html" %}
+<body>
+  {% include "./menu.html" %}
+    <h3>회원가입</h3>
+    <hr/>
+    <form action="/member/auth_join" method="post">
+      {% csrf_token %}
+      아이디 :  <input type="text" name="username"/><br />
+      암호 :  <input type="password" name="password"/><br />
+      이름 :  <input type="text" name="first_name"/><br />
+      이메일 :  <input type="text" name="email"/><br />
+      <input type="submit" value="auth_회원가입" />
+    </form>
+</body>
+</html>
