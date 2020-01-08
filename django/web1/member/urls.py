@@ -24,4 +24,6 @@ urlpatterns = [
     path('exam_update', views.exam_update, name="exam_update"),
     path('exam_delete', views.exam_delete, name="exam_delete"),
     path('exam_select', views.exam_select, name="exam_select"),
+    
+    path('js_index', views.js_index, name="js_index"),
 ]

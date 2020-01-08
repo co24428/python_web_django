@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>JS SELECT</title>
+</head>
+<body>
+    <h3>js_index</h3>
+    <form action="/member/test_insert" method="POST" id="form">
+        <input type="text" id="name" name="name" />
+        <input type="submit" value="추가" />
+        <input type="submit" id="btn_delete" value="삭제" />
+    </form>
+
+    <input type="text" id="name" />
+
+    <script src="http://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <script>
+        $(function(){
+            $('#name').val('jquery')
+            $('#btn_delete').click(function(){
+                $('#form').attr('action', /member/test_delete)
+            })
+        })
+    </script>
+    <!-- cdn (상위의 src 부분)은 브라우저의 다양한 엔진에 맞게 맵핑해준다고 생각 -->
+    
+    <!-- $('#name').val('jquery') => name인 것을 찾아서 value로 jquery를 넣어라  -->
+
+    <!-- $('#btn_delete').click(function(){
+        $('#form').attr('action', /member/test_delete) 
+        btn_delete가 클릭되면 해당 function을 사용해라 >> form의 attr를 바꿀건데, action을 /member/test_delete로 바꿔라 -->
+
+</body>
+</html>

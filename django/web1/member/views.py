@@ -283,23 +283,23 @@ def exam_insert_many(request):
 
 def exam_select(request):
     if request.method == 'GET':
-# ######  ↓ 안봐도 됨 ↓  ###################################
-#         # SELECT SUM(math) FROM MEMBER_TABLE2
-#         test = Table2.objects.aggregate(Sum("math"))
-#         test = Table2.objects.raw("SELECT SUM(math) FROM MEMBER_TABLE2") 
-#         # 출력은 <RawQuerySet: SELECT SUM(math) FROM MEMBER_TABLE2> 값은 정상적으로 가는 듯
+        # ######  ↓ 안봐도 됨 ↓  ###################################
+        #         # SELECT SUM(math) FROM MEMBER_TABLE2
+        #         test = Table2.objects.aggregate(Sum("math"))
+        #         test = Table2.objects.raw("SELECT SUM(math) FROM MEMBER_TABLE2") 
+        #         # 출력은 <RawQuerySet: SELECT SUM(math) FROM MEMBER_TABLE2> 값은 정상적으로 가는 듯
 
-#         # SELECT NO, NAME FROM MEMBER_TABLE2
-#         test = Table2.objects.all().values('no','name')
+        #         # SELECT NO, NAME FROM MEMBER_TABLE2
+        #         test = Table2.objects.all().values('no','name')
 
-#         # SELECT * FROM MEMBER_TABLE2 ORDER BY name ASC
-#         list = Table2.objects.all().order_by('name')
-#         #list = Table2.objects.raw("SELECT * FROM MEMBER_TABLE2 ORDER BY name ASC")
+        #         # SELECT * FROM MEMBER_TABLE2 ORDER BY name ASC
+        #         list = Table2.objects.all().order_by('name')
+        #         #list = Table2.objects.raw("SELECT * FROM MEMBER_TABLE2 ORDER BY name ASC")
 
-#         # 반별 국어, 영어, 수학 합계
-#         # SELECT SUM(kor) AS kor, SUM(eng) AS eng, SUM(math) AS math FROM MEMBER_TABLE2 GROUP BY CLASSROOM
-#         test = Table2.objects.values('classroom').annotate(kor=Sum('kor'),eng=Sum('eng'),math=Sum('math'))
-# ######  ↑ 안봐도 됨 ↑  ###################################
+        #         # 반별 국어, 영어, 수학 합계
+        #         # SELECT SUM(kor) AS kor, SUM(eng) AS eng, SUM(math) AS math FROM MEMBER_TABLE2 GROUP BY CLASSROOM
+        #         test = Table2.objects.values('classroom').annotate(kor=Sum('kor'),eng=Sum('eng'),math=Sum('math'))
+        # ######  ↑ 안봐도 됨 ↑  ###################################
 
         # classroom 전체 가져오기
         rows_tmp = Table2.objects.all().values("classroom")
@@ -405,7 +405,14 @@ def exam_delete(request):
 
         row = Table2.objects.get(no=n)
         row.delete()
-        return redirect("/member/exam_select?page=2")
+        return redirect("/member/exam_select")
+    if request.method == 'POST':
+        pass
+
+
+def js_index(request):
+    if request.method == 'GET':
+        return render(request, "member/js_index.html")
     if request.method == 'POST':
         pass
 
