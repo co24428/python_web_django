@@ -26,4 +26,5 @@ urlpatterns = [
     path('exam_select', views.exam_select, name="exam_select"),
     
     path('js_index', views.js_index, name="js_index"),
+    path('js_chart', views.js_chart, name="js_chart"),
 ]

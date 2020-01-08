@@ -360,7 +360,6 @@ def exam_select(request):
                 return render(request, "member/exam_select.html", 
                     {"list":rows, "classroom_list":clsroom, "sum_avg":sum_avg_list, "pages":range(1,tot+1),"txt":txt})
 
-
 def sum_avg(sql):
     # sum_list = Table2.objects.raw("SELECT 1 as no, SUM(kor) as skor, SUM(eng) as seng, SUM(math) as smath FROM MEMBER_TABLE2")
     sqlS = "SELECT 1 as no, SUM(kor) as skor, SUM(eng) as seng, SUM(math) as smath FROM ("+ sql + ")"
@@ -379,7 +378,6 @@ def sum_avg(sql):
         int(avg_list[0].amath),
     ]
     return sum_avg_list
-
 
 def exam_update(request):
     if request.method == 'GET':
@@ -415,4 +413,11 @@ def js_index(request):
         return render(request, "member/js_index.html")
     if request.method == 'POST':
         pass
+
+def js_chart(request):
+    if request.method == 'GET':
+        return render(request, "member/js_chart.html")
+    if request.method == 'POST':
+        pass
+
 
