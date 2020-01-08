@@ -301,28 +301,65 @@ def exam_select(request):
 #         test = Table2.objects.values('classroom').annotate(kor=Sum('kor'),eng=Sum('eng'),math=Sum('math'))
 # ######  ↑ 안봐도 됨 ↑  ###################################
 
+        # classroom 전체 가져오기
         rows_tmp = Table2.objects.all().values("classroom")
         tmp = set()
         for i in rows_tmp:
             tmp.add(i['classroom'])
         clsroom = list(tmp)
         clsroom.sort()
+
+        # 페이지 넘버링
+        page = int(request.GET.get("page", 1))
+        
+        # 1 - 0~9
+        # 2-  10~19
+        page_end = page*10
+        page_start = page_end-10
+
+        cnt = Table2.objects.all().count()
+        tot = (cnt-1)//10 + 1
+
+        # 검색
+        txt = request.GET.get("txt", "")
         
         cls = request.GET.get("cls", 0)
         if cls:
             # rows = Table2.objects.filter(classroom=cls)
-            sql = "SELECT * FROM MEMBER_TABLE2 WHERE CLASSROOM="+cls
-            rows = Table2.objects.raw(sql)
-            sum_avg_list = sum_avg(sql)
-            return render(request, "member/exam_select.html", {"list":rows, "classroom_list":clsroom, "sum_avg":sum_avg_list})
+            if not txt:
+                sql = "SELECT * FROM MEMBER_TABLE2 WHERE CLASSROOM="+cls
+                rows = Table2.objects.raw(sql)[page_start:page_end]
+                sum_avg_list = sum_avg(sql)
+
+                return render(request, "member/exam_select.html", 
+                    {"list":rows, "classroom_list":clsroom, "sum_avg":sum_avg_list, "pages":range(1,tot+1), "cls":cls})
+            else: # txt exist
+                sql = "SELECT * FROM MEMBER_TABLE2 WHERE CLASSROOM=" + cls + "and  NAME LIKE '%%" + txt + "%%'" 
+                rows = Table2.objects.raw(sql)[page_start:page_end]
+                sum_avg_list = sum_avg(sql)
+
+                return render(request, "member/exam_select.html", 
+                    {"list":rows, "classroom_list":clsroom, "sum_avg":sum_avg_list, "pages":range(1,tot+1), "cls":cls,"txt":txt})
         else:
-            # rows = Table2.objects.all().order_by('-classroom')
-            sql = "SELECT * FROM MEMBER_TABLE2 ORDER BY classroom"
-            rows = Table2.objects.raw(sql)
-            sum_avg_list = sum_avg(sql)
-            return render(request, "member/exam_select.html", {"list":rows, "classroom_list":clsroom, "sum_avg":sum_avg_list})
-    if request.method == 'POST':
-        pass
+            if not txt:
+                sql = "SELECT * FROM MEMBER_TABLE2 ORDER BY classroom"
+                rows = Table2.objects.raw(sql)[page_start:page_end]
+                sum_avg_list = sum_avg(sql)
+
+                return render(request, "member/exam_select.html", 
+                    {"list":rows, "classroom_list":clsroom, "sum_avg":sum_avg_list, "pages":range(1,tot+1)})
+            else: # txt exist
+                # rows = Table2.objects.all().order_by('classroom')
+                # cnt = Table2.objects.filter(name__contains==txt).count()
+                # tot = (cnt-1)//10-1
+
+                sql = "SELECT * FROM MEMBER_TABLE2 WHERE NAME LIKE '%%" + txt + "%%'" + " ORDER BY classroom "
+                rows = Table2.objects.raw(sql)[page_start:page_end]
+                sum_avg_list = sum_avg(sql)
+
+                return render(request, "member/exam_select.html", 
+                    {"list":rows, "classroom_list":clsroom, "sum_avg":sum_avg_list, "pages":range(1,tot+1),"txt":txt})
+
 
 def sum_avg(sql):
     # sum_list = Table2.objects.raw("SELECT 1 as no, SUM(kor) as skor, SUM(eng) as seng, SUM(math) as smath FROM MEMBER_TABLE2")
@@ -334,9 +371,12 @@ def sum_avg(sql):
         sum_list[0].skor,
         sum_list[0].seng,
         sum_list[0].smath,
-        avg_list[0].akor,
-        avg_list[0].aeng,
-        avg_list[0].amath,
+        # avg_list[0].akor,
+        int(avg_list[0].akor),
+        # avg_list[0].aeng,
+        int(avg_list[0].aeng),
+        # avg_list[0].amath,
+        int(avg_list[0].amath),
     ]
     return sum_avg_list
 
@@ -365,6 +405,7 @@ def exam_delete(request):
 
         row = Table2.objects.get(no=n)
         row.delete()
-        return redirect("/member/exam_select")
+        return redirect("/member/exam_select?page=2")
     if request.method == 'POST':
         pass
+

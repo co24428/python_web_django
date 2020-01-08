@@ -9,8 +9,17 @@
 <body>
     <a href="/member/exam_select">기본으로</a> /
     {% for one in classroom_list %}
-    <a href="/member/exam_select?cls={{one}}">{{one}}</a>
-    {% endfor %}
+    <a href="/member/exam_select?cls={{one}}&page=1">{{one}}</a>
+    {% endfor %} <hr />
+    <form action="/member/exam_select" method="get" >
+        {% if cls %}
+        <input type="hidden" name="cls" value="{{cls}}"/>
+        {% endif %}
+        <input type="hidden" name="page" value="1"/>
+        <input type="text" name="txt"/>
+        <input type="submit" value="검색"/>
+    </form>
+
     <hr/>
     <table border="1">
         <tr>
@@ -49,6 +58,15 @@
         </tr>
     </table>
     <hr/>
+    {% if not cls  %}
+        {% for i in pages %}
+        <a href="/member/exam_select?page={{i}}">{{i}}</a>
+        {% endfor  %} <br/>
+    {% elif cls %}
+        {% for i in pages %}
+        <a href="/member/exam_select?cls={{cls}}&page={{i}}">{{i}}</a>
+        {% endfor  %} <br/>
+    {% endif %}
     <a href="/member/exam_insert">성적추가</a>
     <a href="/member/exam_insert_many">5개 성적 추가</a>
         
