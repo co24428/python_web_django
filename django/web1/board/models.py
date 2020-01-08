@@ -3,7 +3,7 @@ from django.db import models
 # Create your models here.
 
 class Table1(models.Model):
-    object  = models.Manager() # vs code 오류 밑줄 제거용, 안써도 된다.
+    objects  = models.Manager() # vs code 오류 밑줄 제거용, 안써도 된다.
 
     no      = models.AutoField(primary_key=True)
     title   = models.CharField(max_length=200)
@@ -14,7 +14,7 @@ class Table1(models.Model):
     regdate = models.DateField(auto_now_add=True)
 
 class Table2(models.Model): # Score 관련 - korean, english, math
-    object  = models.Manager()
+    objects  = models.Manager()
 
     no      = models.AutoField(primary_key=True)
     name    = models.CharField(max_length=30)

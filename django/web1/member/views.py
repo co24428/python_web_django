@@ -277,7 +277,7 @@ def exam_insert_many(request):
             obj.classroom = clroom[i]
             objs.append(obj)
         # objs.save()
-        Table2.object.bulk_create(objs)
+        Table2.objects.bulk_create(objs)
 
         return redirect("/member/exam_index")
 
@@ -285,23 +285,23 @@ def exam_select(request):
     if request.method == 'GET':
 # ######  ↓ 안봐도 됨 ↓  ###################################
 #         # SELECT SUM(math) FROM MEMBER_TABLE2
-#         test = Table2.object.aggregate(Sum("math"))
-#         test = Table2.object.raw("SELECT SUM(math) FROM MEMBER_TABLE2") 
+#         test = Table2.objects.aggregate(Sum("math"))
+#         test = Table2.objects.raw("SELECT SUM(math) FROM MEMBER_TABLE2") 
 #         # 출력은 <RawQuerySet: SELECT SUM(math) FROM MEMBER_TABLE2> 값은 정상적으로 가는 듯
 
 #         # SELECT NO, NAME FROM MEMBER_TABLE2
-#         test = Table2.object.all().values('no','name')
+#         test = Table2.objects.all().values('no','name')
 
 #         # SELECT * FROM MEMBER_TABLE2 ORDER BY name ASC
-#         list = Table2.object.all().order_by('name')
-#         #list = Table2.object.raw("SELECT * FROM MEMBER_TABLE2 ORDER BY name ASC")
+#         list = Table2.objects.all().order_by('name')
+#         #list = Table2.objects.raw("SELECT * FROM MEMBER_TABLE2 ORDER BY name ASC")
 
 #         # 반별 국어, 영어, 수학 합계
 #         # SELECT SUM(kor) AS kor, SUM(eng) AS eng, SUM(math) AS math FROM MEMBER_TABLE2 GROUP BY CLASSROOM
-#         test = Table2.object.values('classroom').annotate(kor=Sum('kor'),eng=Sum('eng'),math=Sum('math'))
+#         test = Table2.objects.values('classroom').annotate(kor=Sum('kor'),eng=Sum('eng'),math=Sum('math'))
 # ######  ↑ 안봐도 됨 ↑  ###################################
 
-        rows_tmp = Table2.object.all().values("classroom")
+        rows_tmp = Table2.objects.all().values("classroom")
         tmp = set()
         for i in rows_tmp:
             tmp.add(i['classroom'])
@@ -310,26 +310,26 @@ def exam_select(request):
         
         cls = request.GET.get("cls", 0)
         if cls:
-            # rows = Table2.object.filter(classroom=cls)
+            # rows = Table2.objects.filter(classroom=cls)
             sql = "SELECT * FROM MEMBER_TABLE2 WHERE CLASSROOM="+cls
-            rows = Table2.object.raw(sql)
+            rows = Table2.objects.raw(sql)
             sum_avg_list = sum_avg(sql)
             return render(request, "member/exam_select.html", {"list":rows, "classroom_list":clsroom, "sum_avg":sum_avg_list})
         else:
-            # rows = Table2.object.all().order_by('-classroom')
+            # rows = Table2.objects.all().order_by('-classroom')
             sql = "SELECT * FROM MEMBER_TABLE2 ORDER BY classroom"
-            rows = Table2.object.raw(sql)
+            rows = Table2.objects.raw(sql)
             sum_avg_list = sum_avg(sql)
             return render(request, "member/exam_select.html", {"list":rows, "classroom_list":clsroom, "sum_avg":sum_avg_list})
     if request.method == 'POST':
         pass
 
 def sum_avg(sql):
-    # sum_list = Table2.object.raw("SELECT 1 as no, SUM(kor) as skor, SUM(eng) as seng, SUM(math) as smath FROM MEMBER_TABLE2")
+    # sum_list = Table2.objects.raw("SELECT 1 as no, SUM(kor) as skor, SUM(eng) as seng, SUM(math) as smath FROM MEMBER_TABLE2")
     sqlS = "SELECT 1 as no, SUM(kor) as skor, SUM(eng) as seng, SUM(math) as smath FROM ("+ sql + ")"
     sqlA = "SELECT 1 as no, AVG(kor) as akor, AVG(eng) as aeng, AVG(math) as amath FROM ("+ sql + ")"
-    sum_list = Table2.object.raw(sqlS)
-    avg_list = Table2.object.raw(sqlA)
+    sum_list = Table2.objects.raw(sqlS)
+    avg_list = Table2.objects.raw(sqlA)
     sum_avg_list = [
         sum_list[0].skor,
         sum_list[0].seng,
@@ -344,12 +344,12 @@ def sum_avg(sql):
 def exam_update(request):
     if request.method == 'GET':
         n = request.GET.get("no", 0)
-        row = Table2.object.get(no=n)
-        clsroom = Table2.object.get
+        row = Table2.objects.get(no=n)
+        clsroom = Table2.objects.get
         return render(request, "member/exam_update.html",{"one": row})
     if request.method == 'POST':
         n = request.POST["no"]
-        obj = Table2.object.get(no=n)
+        obj = Table2.objects.get(no=n)
 
         obj.name = request.POST["name"]
         obj.kor = request.POST["kor"]
@@ -363,7 +363,7 @@ def exam_delete(request):
     if request.method == 'GET':
         n = request.GET.get("no",0)
 
-        row = Table2.object.get(no=n)
+        row = Table2.objects.get(no=n)
         row.delete()
         return redirect("/member/exam_select")
     if request.method == 'POST':

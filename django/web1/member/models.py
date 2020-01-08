@@ -11,7 +11,7 @@ from mpmath import clsin
 # exam_select
 
 class Table2(models.Model):
-    object  = models.Manager()
+    objects  = models.Manager()
 
     no          = models.AutoField(primary_key=True)
     name        = models.CharField(max_length=30)

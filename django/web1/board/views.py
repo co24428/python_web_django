@@ -244,14 +244,14 @@ def t2_insert_all(request):
             objs.append(obj)
         # save를 할 때, 일괄적으로 처리되어야 한다. 다 되거나, 하나도 안되거나
         # save 대신 사용 -> bulk_create
-        Table2.object.bulk_create(objs)
+        Table2.objects.bulk_create(objs)
 
         return redirect("/board/t2_list")
 
 @csrf_exempt
 def t2_list(request):
     if request.method == "GET":
-        rows = Table2.object.all()
+        rows = Table2.objects.all()
         # SQL : SELECT * FROM VOARD_TABLE2
         print(rows)
         print(type(rows)) # <class 'django.db.models.query.QuerySet'>
@@ -262,11 +262,11 @@ def t2_update(request):
     if request.method == 'GET':
         n = request.GET.get("no",0)
         #SELECT * FROM BOARD_TABLE2 WHERE NO=%s
-        row = Table2.object.get(no=n)
+        row = Table2.objects.get(no=n)
         return render(request, 'board/t2_update.html',{"one":row})
     if request.method == 'POST':
         n = request.POST['no']
-        obj = Table2.object.get(no=n) #obj객체 가져옴
+        obj = Table2.objects.get(no=n) #obj객체 가져옴
         obj.name = request.POST['name'] # 변수에 값
         obj.kor = request.POST['kor']
         obj.eng = request.POST['eng']
@@ -281,7 +281,7 @@ def t2_update(request):
 def t2_update_all(request):
     if request.method == "GET":
         n = request.session['no']
-        rows = Table2.object.filter(no__in=n)
+        rows = Table2.objects.filter(no__in=n)
         return render(request, 'board/t2_update_all.html',{"list":rows})
     if request.method == "POST":
         menu = request.POST['menu']
@@ -298,13 +298,13 @@ def t2_update_all(request):
 
             objs = []
             for i in range(0, len(no)):
-                obj = Table2.object.get(no=no[i])
+                obj = Table2.objects.get(no=no[i])
                 obj.name = name[i]
                 obj.kor = kor[i]
                 obj.eng = eng[i]
                 obj.math = math[i]
                 objs.append(obj)
-            Table2.object.bulk_update(objs,["name", "kor", "eng", "math"])
+            Table2.objects.bulk_update(objs,["name", "kor", "eng", "math"])
             return redirect("/board/t2_list")
             
 
@@ -314,7 +314,7 @@ def t2_delete(request):
         n = request.GET.get("no",0)
 
         # SQL : SELECT * FROM BOARD_TABLE2 WHERE NO=%s
-        row = Table2.object.get(no=n)
+        row = Table2.objects.get(no=n)
         # SQL : DELETE * FROM BOARD_TABLE2 WHERE NO=%s
         row.delete();
 
