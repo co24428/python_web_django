@@ -6,6 +6,7 @@ from django.db import connection
 from base64 import b64encode # byte배열을 base64로 변경함.
 import pandas as pd
 from .models import Table2 # 해당 모델에 직접 연결, SQL 안써도 되게끔
+from .models import Table1
 
 cursor = connection.cursor()
 
@@ -54,29 +55,86 @@ def write(request):
 @csrf_exempt
 def list(request):
     if request.method=='GET':
+        option = request.GET.get('search_option', None) # title, content, writer
+        search = request.GET.get('search_text', None)
+
         request.session['hit'] = 1 # 세션에  hit=1
-        
         writer = request.GET.get('writer', None)
-        sql =""
-        if writer != None:
-            sql = """
-                SELECT NO, TITLE, WRITER, HIT, TO_CHAR(REGDATE, 'YYYY-MM-DD HH:MI:SS') 
-                FROM BOARD_TABLE1
-                WHERE WRITER=%s
-                ORDER BY NO DESC
-            """
-            cursor.execute(sql,[writer])
-        else:    
-            sql = """
-                SELECT NO, TITLE, WRITER, HIT, TO_CHAR(REGDATE, 'YYYY-MM-DD HH:MI:SS') 
-                FROM BOARD_TABLE1
-                ORDER BY NO DESC
-            """
-            cursor.execute(sql)
+
+        page = int(request.GET.get("page", 1))
+        page_end = page*10 + 1
+        page_start = page_end-10
+        print (option == "title")
+
+        if option == "title":
+            sql1 = "SELECT NO, TITLE, WRITER, HIT, REGDATE,  ROW_NUMBER() OVER (ORDER BY NO DESC) ROWN FROM BOARD_TABLE1 WHERE TITLE LIKE \'%" + str(search) + "%\'"
+            sql2 = "SELECT * FROM (" + sql1 + ") WHERE ROWN BETWEEN " + str(page_start) + " and " + str(page_end)         # WHERE TITLE LIKE '%1%'
+            print(sql2)
+            sqlc = "SELECT COUNT(*) FROM (" + sql1 + ")"
+            cursor.execute(sqlc)
+            cnt = cursor.fetchone()[0]
+            tot = (cnt-1)//10+1
+            
+            cursor.execute(sql2)
+        elif option == "content":
+            sql1 = "SELECT NO, TITLE, WRITER, HIT, REGDATE,  ROW_NUMBER() OVER (ORDER BY NO DESC) ROWN FROM BOARD_TABLE1 WHERE CONTENT LIKE \'%%" + str(search) + "%%\'"
+            sql2 = "SELECT * FROM (" + sql1 + ") WHERE ROWN BETWEEN " + str(page_start) + " and " + str(page_end)
+
+            sqlc = "SELECT COUNT(*) FROM (" + sql1 + ")"
+            cursor.execute(sqlc)
+            cnt = cursor.fetchone()[0]
+            tot = (cnt-1)//10+1
+            
+            cursor.execute(sql2)
+        elif option == "writer":
+            sql1 = "SELECT NO, TITLE, WRITER, HIT, REGDATE,  ROW_NUMBER() OVER (ORDER BY NO DESC) ROWN FROM BOARD_TABLE1 WHERE WRITER LIKE \'%%" + str(search) + "%%\'"
+            sql2 = "SELECT * FROM (" + sql1 + ") WHERE ROWN BETWEEN " + str(page_start) + " and " + str(page_end)
+
+            sqlc = "SELECT COUNT(*) FROM (" + sql1 + ")"
+            cursor.execute(sqlc)
+            cnt = cursor.fetchone()[0]
+            tot = (cnt-1)//10+1
+            
+            cursor.execute(sql2)
+        else: 
+
+            if writer != None:
+                sql1 = "SELECT NO, TITLE, WRITER, HIT, REGDATE,  ROW_NUMBER() OVER (ORDER BY NO DESC) ROWN FROM BOARD_TABLE1 WHERE WRITER=%s"
+                sql2 = "SELECT * FROM (" + sql1 + ") WHERE ROWN BETWEEN " + str(page_start) + " and " + str(page_end)
+
+                sqlc = "SELECT COUNT(*) FROM (" + sql1 + ")"
+                cursor.execute(sqlc, [writer])
+                cnt = cursor.fetchone()[0]
+                tot = (cnt-1)//10+1
+
+                # sql = """
+                #     SELECT NO, TITLE, WRITER, HIT, TO_CHAR(REGDATE, 'YYYY-MM-DD HH:MI:SS') 
+                #     FROM BOARD_TABLE1
+                #     WHERE WRITER=%s
+                #     ORDER BY NO DESC
+                # """
+                cursor.execute(sql2,[writer])
+            else:    
+                sql1 = "SELECT NO, TITLE, WRITER, HIT, REGDATE,  ROW_NUMBER() OVER (ORDER BY NO DESC) ROWN FROM BOARD_TABLE1"
+                sql2 = "SELECT * FROM (" + sql1 + ") WHERE ROWN BETWEEN " + str(page_start) + " and " + str(page_end)
+                
+                sqlc = "SELECT COUNT(*) FROM BOARD_TABLE1"
+                cursor.execute(sqlc)
+                cnt = cursor.fetchone()[0]
+                # model .ver
+                # cnt = Table1.objects.all().count() 
+
+                tot = (cnt-1)//10+1
+                # sql = """
+                #     SELECT NO, TITLE, WRITER, HIT, TO_CHAR(REGDATE, 'YYYY-MM-DD HH:MI:SS') 
+                #     FROM BOARD_TABLE1
+                #     ORDER BY NO DESC
+                # """
+                cursor.execute(sql2)
 
         data = cursor.fetchall()
         
-        return render(request, 'board/list.html', {"list":data, "writer":writer})
+        return render(request, 'board/list.html', {"list":data, "writer":writer, "pages": range(1, tot+1)})
 
 
 # http://127.0.0.1:8000/board/content?no=13     -> 정상 작동
