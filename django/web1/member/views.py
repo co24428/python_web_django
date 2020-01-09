@@ -530,8 +530,6 @@ def graph(request):
 #         # FROM MEMBER_TABLE2 GROUP BY CLASSROOM
 #         sum_list = Table2.objects.values("classroom").annotate(skor=Sum("kor"), seng=Sum("eng"), smath=Sum("math"))
 # ######  SQL 추가 설명  ####################################
-    if request.method == 'POST':
-        pass
 
 def graph2(request):
     if request.method == 'GET':
