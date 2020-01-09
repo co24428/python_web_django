@@ -521,15 +521,15 @@ def graph(request):
         return render(request, "member/graph.html", {"graphs": new_list})
         # <img src="{{graph}}" />
 
-######  SQL 추가 설명  ####################################
-        # SELECT SUM("kor") FROM MEMBER_TABLE2 WHERE KOR > 10
-        # > gt, >= gte, < lt, <= lte
-        skor = Table2. objects.filter(kor__gt=10).aggregate(skor=Sum("kor"))[skor]
+# ######  SQL 추가 설명  ####################################
+#         # SELECT SUM("kor") FROM MEMBER_TABLE2 WHERE KOR > 10
+#         # > gt, >= gte, < lt, <= lte
+#         skor = Table2. objects.filter(kor__gt=10).aggregate(skor=Sum("kor"))[skor]
 
-        # SELECT SUM("kor") skor, SUM("eng") seng, SUM("math") smath
-        # FROM MEMBER_TABLE2 GROUP BY CLASSROOM
-        sum_list = Table2.objects.values("classroom").annotate(skor=Sum("kor"), seng=Sum("eng"), smath=Sum("math"))
-######  SQL 추가 설명  ####################################
+#         # SELECT SUM("kor") skor, SUM("eng") seng, SUM("math") smath
+#         # FROM MEMBER_TABLE2 GROUP BY CLASSROOM
+#         sum_list = Table2.objects.values("classroom").annotate(skor=Sum("kor"), seng=Sum("eng"), smath=Sum("math"))
+# ######  SQL 추가 설명  ####################################
     if request.method == 'POST':
         pass
 
