@@ -506,6 +506,9 @@ def graph(request):
             y = [skor, seng, smath]
 
             plt.bar(x,y)
+            plt.title(clsroom+"_SUM")
+            plt.xlabel("과목")
+            plt.ylabel("성적")
             # plt.show() # 표시, web에서는 출력 안됨
             plt.draw() # 안보이게 그림을 캡처 
             img = io.BytesIO() # img에 byte배열로 보관
