@@ -30,4 +30,5 @@ urlpatterns = [
     
     path('dataframe', views.dataframe, name="dataframe"),
     path('graph', views.graph, name="graph"),
+    path('graph2', views.graph2, name="graph2"),
 ]
