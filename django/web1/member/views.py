@@ -572,10 +572,10 @@ def graph2(request):
         plt.ylabel("성적")
 
         # plt.show() # 표시, web에서는 출력 안됨
-        plt.draw() # 안보이게 그림을 캡처 
-        img = io.BytesIO() # img에 byte배열로 보관
-        plt.savefig(img, format="png") # png파일 포맷으로 저장
-        img_url = base64.b64encode(img.getvalue()).decode()
+        # plt.draw() # 안보이게 그림을 캡처 
+        # img = io.BytesIO() # img에 byte배열로 보관
+        # plt.savefig(img, format="png") # png파일 포맷으로 저장
+        # img_url = base64.b64encode(img.getvalue()).decode()
         # img_list.append(img_url)
 
         # plt.close() # 그래프 종료
@@ -598,12 +598,18 @@ def graph2(request):
             # plt.ylabel("성적")
 
             # plt.show() # 표시, web에서는 출력 안됨
-            plt.draw() # 안보이게 그림을 캡처 
-            img = io.BytesIO() # img에 byte배열로 보관
-            plt.savefig(img, format="png") # png파일 포맷으로 저장
-            img_url = base64.b64encode(img.getvalue()).decode()
+        # 밑으로 가도 되는 코드
+            # plt.draw() # 안보이게 그림을 캡처 
+            # img = io.BytesIO() # img에 byte배열로 보관
+            # plt.savefig(img, format="png") # png파일 포맷으로 저장
+            # img_url = base64.b64encode(img.getvalue()).decode()
+            
             # img_list.append(img_url)
             # plt.close() # 그래프 종료
+        plt.draw()
+        img = io.BytesIO() # img에 byte배열로 보관
+        plt.savefig(img, format="png") # png파일 포맷으로 저장
+        img_url = base64.b64encode(img.getvalue()).decode()
 
         plt.close() # 그래프 종료
         # new_list = []
