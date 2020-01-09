@@ -12,7 +12,17 @@ from django.contrib.auth import logout as logout1
 from django.contrib.auth import authenticate as auth1
 
 from .models import Table2
-from django.db.models import Sum, Max, Min, Count, Avg
+from django.db.models import Sum, Max, Min, Count, Avg 
+
+# dataframe
+import pandas as pd
+# graph
+import matplotlib.pyplot as plt
+import io # byte로 변환
+import base64 # byte배열을 base64로 변경함.
+from matplotlib import font_manager, rc # 한글 폰트 적용
+
+
 
               
 # Create your views here.
@@ -129,7 +139,6 @@ def delete(request):
         """
         cursor.execute(sql, ar)
         return redirect("/member/logout")
-
 
 @csrf_exempt
 def join1(request):
@@ -397,6 +406,7 @@ def exam_update(request):
         obj.save()
 
         return redirect("/member/exam_select")
+
 def exam_delete(request):
     if request.method == 'GET':
         n = request.GET.get("no",0)
@@ -406,7 +416,6 @@ def exam_delete(request):
         return redirect("/member/exam_select")
     if request.method == 'POST':
         pass
-
 
 def js_index(request):
     if request.method == 'GET':
@@ -420,4 +429,113 @@ def js_chart(request):
     if request.method == 'POST':
         pass
 
+def dataframe(request):
+    if request.method == 'GET':
+        # 1. QuerySet >> list 변경
+        # SELECT NO, NAME, KOR FORM MEMBER_TABLE2
+        rows = list(Table2.objects.all().values("no","name", "kor"))
+        print(rows) # >> [{ }, { }, ...  ] dict의 list
 
+        # 2. list >> dataframe 변경
+        df = pd.DataFrame(rows)
+
+        # 3. dataframe >> list 변경
+        rows1 = df.values.tolist()
+        print(rows) # >> [( ), ( ), ...  ]list의 list
+        
+        return render(request, "member/dataframe.html", {"df_table": df.to_html, "list":rows})
+    if request.method == 'POST':
+        pass
+
+def graph(request):
+    if request.method == 'GET':
+        
+        # 폰트 읽기
+        font_name = font_manager.FontProperties\
+            (fname="c:/Windows/Fonts/malgun.ttf").get_name()
+        # 폰트 적용
+        rc('font', family=font_name)
+
+        sum_list = Table2.objects.values("classroom").annotate(skor=Sum("kor"), seng=Sum("eng"), smath=Sum("math"))
+        print(sum_list)
+        
+        # classroom 전체 가져오기
+        rows_tmp = Table2.objects.all().values("classroom")
+        tmp = set()
+        for i in rows_tmp:
+            tmp.add(i['classroom'])
+        clsroom_list = list(tmp)
+        clsroom_list.sort()
+
+        # 이미지 데이터 리스트
+        img_list = []
+
+        # 전체에서 합계
+        skor = Table2.objects.aggregate(skor = Sum("kor"))['skor']
+        seng = Table2.objects.aggregate(seng = Sum("eng"))['seng']
+        smath = Table2.objects.aggregate(smath = Sum("math"))['smath']
+        x = ['all_kor', 'all_eng', 'all_math']
+        y = [skor, seng, smath]
+
+        plt.bar(x,y)
+        plt.title("All_SUM")
+        plt.xlabel("과목")
+        plt.ylabel("성적")
+
+        # plt.show() # 표시, web에서는 출력 안됨
+        plt.draw() # 안보이게 그림을 캡처 
+        img = io.BytesIO() # img에 byte배열로 보관
+        plt.savefig(img, format="png") # png파일 포맷으로 저장
+        img_url = base64.b64encode(img.getvalue()).decode()
+        img_list.append(img_url)
+
+        plt.close() # 그래프 종료
+        
+        # 반 별로 for 돌면서 그래프
+        for i in clsroom_list:
+            clsroom = str(i)
+            # skor = Table2.objects.filter(classroom=101).aggregate(skor = Sum("kor"))['skor']
+            # SELECT 1 as no, SUM('kor) as skor FROM MEMBER_TABLE2
+            
+            skor = Table2.objects.filter(classroom=clsroom).aggregate(skor = Sum("kor"))['skor']
+            seng = Table2.objects.filter(classroom=clsroom).aggregate(seng = Sum("eng"))['seng']
+            smath = Table2.objects.filter(classroom=clsroom).aggregate(smath = Sum("math"))['smath']
+            x = [clsroom+'_kor', clsroom+'_eng', clsroom+'_math']
+            y = [skor, seng, smath]
+
+            plt.bar(x,y)
+            plt.title(clsroom+"_SUM")
+            plt.xlabel("과목")
+            plt.ylabel("성적")
+
+            # plt.show() # 표시, web에서는 출력 안됨
+            plt.draw() # 안보이게 그림을 캡처 
+            img = io.BytesIO() # img에 byte배열로 보관
+            plt.savefig(img, format="png") # png파일 포맷으로 저장
+            img_url = base64.b64encode(img.getvalue()).decode()
+            img_list.append(img_url)
+            plt.close() # 그래프 종료
+
+        new_list = []
+        for i in img_list:
+            new_list.append( "data:;base64,{}".format(i) )
+
+        return render(request, "member/graph.html", {"graphs": new_list, "len": range(len(new_list))})
+        # <img src="{{graph}}" />
+
+######  SQL 추가 설명  ####################################
+        # SELECT SUM("kor") FROM MEMBER_TABLE2 WHERE KOR > 10
+        # > gt, >= gte, < lt, <= lte
+        skor = Table2. objects.filter(kor__gt=10).aggregate(skor=Sum("kor"))[skor]
+
+        # SELECT SUM("kor") skor, SUM("eng") seng, SUM("math") smath
+        # FROM MEMBER_TABLE2 GROUP BY CLASSROOM
+        sum_list = Table2.objects.values("classroom").annotate(skor=Sum("kor"), seng=Sum("eng"), smath=Sum("math"))
+
+
+
+
+
+######  SQL 추가 설명  ####################################
+    if request.method == 'POST':
+        pass
