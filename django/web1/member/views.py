@@ -359,7 +359,7 @@ def exam_select(request):
                     {"list":rows, "classroom_list":clsroom, "sum_avg":sum_avg_list, "pages":range(1,tot+1)})
             else: # txt exist
                 # rows = Table2.objects.all().order_by('classroom')
-                # cnt = Table2.objects.filter(name__contains==txt).count()
+                # cnt = Table2.objects.filter(name__contains=txt).count()
                 # tot = (cnt-1)//10-1
 
                 sql = "SELECT * FROM MEMBER_TABLE2 WHERE NAME LIKE '%%" + txt + "%%'" + " ORDER BY classroom "
